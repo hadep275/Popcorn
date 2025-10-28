@@ -47,7 +47,7 @@ const Home = () => {
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-bold mb-4">Welcome! 🎬✨</h1>
           <p className="text-muted-foreground mb-6">
-            To start exploring movies and shows, please add your TMDB and YouTube API keys in your profile.
+            To start exploring movies and shows, please add your TMDB API key in your profile.
           </p>
           <Button asChild className="gap-2">
             <Link to="/profile">Go to Profile →</Link>

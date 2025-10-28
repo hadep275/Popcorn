@@ -1,4 +1,4 @@
-import { User, Key, Save } from "lucide-react";
+import { User, Key, Save, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ const Profile = () => {
   
   const [localApiKeys, setLocalApiKeys] = useState(apiKeys);
   const [localProfile, setLocalProfile] = useState(userProfile);
+  const [showTmdbKey, setShowTmdbKey] = useState(false);
+  const [showYoutubeKey, setShowYoutubeKey] = useState(false);
 
   const handleSaveApiKeys = () => {
     setApiKeys(localApiKeys);
@@ -89,21 +91,30 @@ const Profile = () => {
           
           {!hasApiKeys && (
             <p className="text-sm text-muted-foreground mb-4">
-              Please enter your API keys to use the app. All data is stored locally on your device.
+              Please enter your TMDB API key to use the app. YouTube key is optional for trailers. All data is stored locally on your device.
             </p>
           )}
 
           <div className="space-y-4">
-            <div>
+          <div>
               <Label htmlFor="tmdb" className="text-card-foreground">TMDB API Key</Label>
-              <Input
-                id="tmdb"
-                type="password"
-                value={localApiKeys.tmdb}
-                onChange={(e) => setLocalApiKeys({ ...localApiKeys, tmdb: e.target.value })}
-                placeholder="Enter your TMDB API key"
-                className="mt-1.5 font-mono text-xs"
-              />
+              <div className="relative mt-1.5">
+                <Input
+                  id="tmdb"
+                  type={showTmdbKey ? "text" : "password"}
+                  value={localApiKeys.tmdb}
+                  onChange={(e) => setLocalApiKeys({ ...localApiKeys, tmdb: e.target.value })}
+                  placeholder="Enter your TMDB API key"
+                  className="font-mono text-xs pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowTmdbKey(!showTmdbKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showTmdbKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Get your key from{" "}
                 <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -113,15 +124,24 @@ const Profile = () => {
             </div>
 
             <div>
-              <Label htmlFor="youtube" className="text-card-foreground">YouTube API Key</Label>
-              <Input
-                id="youtube"
-                type="password"
-                value={localApiKeys.youtube}
-                onChange={(e) => setLocalApiKeys({ ...localApiKeys, youtube: e.target.value })}
-                placeholder="Enter your YouTube API key"
-                className="mt-1.5 font-mono text-xs"
-              />
+              <Label htmlFor="youtube" className="text-card-foreground">YouTube API Key (Optional)</Label>
+              <div className="relative mt-1.5">
+                <Input
+                  id="youtube"
+                  type={showYoutubeKey ? "text" : "password"}
+                  value={localApiKeys.youtube}
+                  onChange={(e) => setLocalApiKeys({ ...localApiKeys, youtube: e.target.value })}
+                  placeholder="Enter your YouTube API key"
+                  className="font-mono text-xs pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowYoutubeKey(!showYoutubeKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showYoutubeKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Get your key from{" "}
                 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">

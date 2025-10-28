@@ -32,7 +32,7 @@ export function ApiKeysProvider({ children }: { children: ReactNode }) {
     email: '',
   });
 
-  const hasApiKeys = Boolean(apiKeys.tmdb && apiKeys.youtube);
+  const hasApiKeys = Boolean(apiKeys.tmdb);
 
   return (
     <ApiKeysContext.Provider value={{ apiKeys, setApiKeys, userProfile, setUserProfile, hasApiKeys }}>
