@@ -32,6 +32,7 @@ const Details = () => {
     getShowProgress,
     updateProgress,
     markEpisodeWatched,
+    unmarkEpisodeWatched,
     isEpisodeWatched,
     getSeasonProgress,
   } = useEpisodeTracking();
@@ -211,11 +212,20 @@ const Details = () => {
   const handleMarkWatched = (episodeNumber: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (id) {
-      markEpisodeWatched(parseInt(id), selectedSeason, episodeNumber);
-      toast({
-        title: "Episode marked as watched",
-        description: `S${selectedSeason}E${episodeNumber}`,
-      });
+      const isWatched = isEpisodeWatched(parseInt(id), selectedSeason, episodeNumber);
+      if (isWatched) {
+        unmarkEpisodeWatched(parseInt(id), selectedSeason, episodeNumber);
+        toast({
+          title: "Episode unmarked",
+          description: `S${selectedSeason}E${episodeNumber}`,
+        });
+      } else {
+        markEpisodeWatched(parseInt(id), selectedSeason, episodeNumber);
+        toast({
+          title: "Episode marked as watched",
+          description: `S${selectedSeason}E${episodeNumber}`,
+        });
+      }
     }
   };
 

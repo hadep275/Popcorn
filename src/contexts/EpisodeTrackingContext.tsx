@@ -13,6 +13,7 @@ interface EpisodeTrackingContextType {
   getShowProgress: (showId: number) => EpisodeProgress | null;
   updateProgress: (showId: number, season: number, episode: number) => void;
   markEpisodeWatched: (showId: number, season: number, episode: number) => void;
+  unmarkEpisodeWatched: (showId: number, season: number, episode: number) => void;
   isEpisodeWatched: (showId: number, season: number, episode: number) => boolean;
   getSeasonProgress: (showId: number, season: number, totalEpisodes: number) => { watched: number; total: number; percentage: number };
   clearAllProgress: () => void;
@@ -63,6 +64,24 @@ export function EpisodeTrackingProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const unmarkEpisodeWatched = (showId: number, season: number, episode: number) => {
+    const key = showId.toString();
+    const existing = tracking[key];
+    if (!existing) return;
+    
+    const episodeKey = `${season}-${episode}`;
+    const watchedEpisodes = existing.watchedEpisodes.filter(ep => ep !== episodeKey);
+    
+    setTracking({
+      ...tracking,
+      [key]: {
+        ...existing,
+        watchedEpisodes,
+        lastWatchedAt: Date.now(),
+      },
+    });
+  };
+
   const isEpisodeWatched = (showId: number, season: number, episode: number): boolean => {
     const progress = getShowProgress(showId);
     if (!progress) return false;
@@ -95,6 +114,7 @@ export function EpisodeTrackingProvider({ children }: { children: ReactNode }) {
         getShowProgress,
         updateProgress,
         markEpisodeWatched,
+        unmarkEpisodeWatched,
         isEpisodeWatched,
         getSeasonProgress,
         clearAllProgress,
