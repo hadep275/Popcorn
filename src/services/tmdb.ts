@@ -20,6 +20,29 @@ export interface Movie {
   episode_run_time?: number[];
   created_by?: { id: number; name: string }[];
   networks?: { id: number; name: string; logo_path: string }[];
+  seasons?: Season[];
+}
+
+export interface Season {
+  id: number;
+  season_number: number;
+  name: string;
+  episode_count: number;
+  air_date: string;
+  poster_path: string | null;
+  overview: string;
+}
+
+export interface Episode {
+  id: number;
+  episode_number: number;
+  season_number: number;
+  name: string;
+  overview: string;
+  air_date: string;
+  still_path: string | null;
+  vote_average: number;
+  runtime: number;
 }
 
 export interface Cast {
@@ -155,5 +178,22 @@ export const tmdbService = {
     if (!response.ok) throw new Error('Failed to discover by genre');
     const data = await response.json();
     return data.results as Movie[];
+  },
+
+  // Get season details
+  getSeasonDetails: async (
+    apiKey: string,
+    tvId: string,
+    seasonNumber: number
+  ) => {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch season details');
+    const data = await response.json();
+    return {
+      ...data,
+      episodes: data.episodes as Episode[]
+    };
   },
 };

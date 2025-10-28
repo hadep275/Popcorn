@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Plus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
-import { tmdbService, Movie, Cast } from "@/services/tmdb";
+import { tmdbService, Movie, Cast, Video, Episode } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 
 const Details = () => {
@@ -13,7 +14,14 @@ const Details = () => {
   const { apiKeys, hasApiKeys } = useApiKeys();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState<number>(1);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [selectedEpisode, setSelectedEpisode] = useState<number>(1);
+  const [showPlayer, setShowPlayer] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const isTvShow = mediaType === 'tv';
 
   useEffect(() => {
     if (!hasApiKeys || !id || !mediaType) return;
@@ -21,12 +29,14 @@ const Details = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [movieData, castData] = await Promise.all([
+        const [movieData, castData, videosData] = await Promise.all([
           tmdbService.getDetails(apiKeys.tmdb, id, mediaType),
           tmdbService.getCredits(apiKeys.tmdb, id, mediaType),
+          tmdbService.getVideos(apiKeys.tmdb, id, mediaType),
         ]);
         setMovie(movieData);
         setCast(castData.slice(0, 6));
+        setVideos(videosData.filter(v => v.site === 'YouTube' && v.type === 'Trailer'));
       } catch (error) {
         console.error("Error fetching movie details:", error);
       } finally {
@@ -36,6 +46,27 @@ const Details = () => {
 
     fetchData();
   }, [id, mediaType, apiKeys.tmdb, hasApiKeys]);
+
+  // Fetch episodes when season changes (TV shows only)
+  useEffect(() => {
+    if (!isTvShow || !hasApiKeys || !id || !selectedSeason) return;
+
+    const fetchEpisodes = async () => {
+      try {
+        const seasonData = await tmdbService.getSeasonDetails(
+          apiKeys.tmdb,
+          id,
+          selectedSeason
+        );
+        setEpisodes(seasonData.episodes);
+        setSelectedEpisode(1);
+      } catch (error) {
+        console.error("Error fetching episodes:", error);
+      }
+    };
+
+    fetchEpisodes();
+  }, [selectedSeason, id, isTvShow, apiKeys.tmdb, hasApiKeys]);
 
   if (!hasApiKeys) {
     return (
@@ -72,7 +103,18 @@ const Details = () => {
 
   const title = movie.title || movie.name || "Unknown Title";
   const releaseYear = movie.release_date?.split("-")[0] || movie.first_air_date?.split("-")[0] || "N/A";
-  const isTvShow = Boolean(movie.name || movie.number_of_seasons);
+  const trailer = videos[0];
+  
+  const getPlayerUrl = () => {
+    if (isTvShow) {
+      return `https://vidsrc.to/embed/tv/${id}/${selectedSeason}/${selectedEpisode}`;
+    }
+    return `https://vidsrc.to/embed/movie/${id}`;
+  };
+
+  const handlePlayClick = () => {
+    setShowPlayer(true);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -148,7 +190,7 @@ const Details = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 mb-6">
-            <Button size="lg" className="flex-1 gap-2 bg-gradient-hero">
+            <Button size="lg" className="flex-1 gap-2 bg-gradient-hero" onClick={handlePlayClick}>
               <Play size={20} fill="white" />
               Play
             </Button>
@@ -156,6 +198,88 @@ const Details = () => {
               <Plus size={20} />
             </Button>
           </div>
+
+          {/* Video Player */}
+          {showPlayer && (
+            <div className="mb-6">
+              <div className="aspect-video bg-card rounded-lg overflow-hidden">
+                <iframe
+                  src={getPlayerUrl()}
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Season & Episode Selector for TV Shows */}
+          {isTvShow && movie.seasons && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-3">Episodes</h2>
+              <div className="flex gap-3 mb-4">
+                <Select value={selectedSeason.toString()} onValueChange={(v) => setSelectedSeason(Number(v))}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select Season" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-50">
+                    {movie.seasons
+                      .filter(s => s.season_number > 0)
+                      .map((season) => (
+                        <SelectItem key={season.id} value={season.season_number.toString()}>
+                          {season.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Episode List */}
+              <div className="space-y-3">
+                {episodes.map((episode) => (
+                  <div
+                    key={episode.id}
+                    className="flex gap-3 bg-card rounded-lg p-3 cursor-pointer hover:bg-card/80 transition-colors"
+                    onClick={() => {
+                      setSelectedEpisode(episode.episode_number);
+                      setShowPlayer(true);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    {episode.still_path && (
+                      <img
+                        src={tmdbService.getImageUrl(episode.still_path, 'w342')}
+                        alt={episode.name}
+                        className="w-32 h-20 object-cover rounded"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <h3 className="font-medium text-sm">
+                          {episode.episode_number}. {episode.name}
+                        </h3>
+                        {episode.vote_average > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Star size={12} className="fill-primary text-primary" />
+                            <span className="text-xs text-muted-foreground">
+                              {episode.vote_average.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {episode.overview || 'No description available'}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                        {episode.air_date && <span>{episode.air_date}</span>}
+                        {episode.runtime && <span>• {episode.runtime}min</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Overview */}
           <div className="mb-6">
@@ -190,12 +314,19 @@ const Details = () => {
           )}
 
           {/* Trailer Section */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3">Trailer</h2>
-            <div className="aspect-video bg-card rounded-lg flex items-center justify-center">
-              <Play size={48} className="text-muted-foreground" />
+          {!showPlayer && trailer && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-3">Trailer</h2>
+              <div className="aspect-video bg-card rounded-lg overflow-hidden">
+                <iframe
+                  src={`https://www.youtube.com/embed/${trailer.key}`}
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </ScrollArea>
 
