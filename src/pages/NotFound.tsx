@@ -21,9 +21,6 @@ const NotFound = () => {
               animation: 'wiggle 1s ease-in-out infinite, bounce 2s ease-in-out infinite'
             }}
           />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-6xl opacity-20 animate-pulse">🍿</div>
-          </div>
         </div>
         <h1 className="mb-4 text-6xl font-bold">404</h1>
         <p className="mb-2 text-xl">Oops! This page ran out of popcorn</p>
