@@ -8,7 +8,7 @@ import { useApiKeys } from "@/contexts/ApiKeysContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
 import { tmdbService, Movie, Cast, Video, Episode } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const Details = () => {
   const { id, mediaType } = useParams<{ id: string; mediaType: 'movie' | 'tv' }>();
@@ -148,7 +148,9 @@ const Details = () => {
     
     if (isFavorite(parseInt(id))) {
       removeFromFavorites(parseInt(id));
-      toast.success('Removed from favorites');
+      toast({
+        title: "Removed from favorites",
+      });
     } else {
       addToFavorites({
         id: parseInt(id),
@@ -158,7 +160,9 @@ const Details = () => {
         media_type: mediaType,
         addedAt: Date.now(),
       });
-      toast.success('Added to favorites');
+      toast({
+        title: "Added to favorites",
+      });
     }
   };
 
@@ -167,7 +171,9 @@ const Details = () => {
     
     if (isInWatchlist(parseInt(id))) {
       removeFromWatchlist(parseInt(id));
-      toast.success('Removed from watchlist');
+      toast({
+        title: "Removed from watchlist",
+      });
     } else {
       addToWatchlist({
         id: parseInt(id),
@@ -177,7 +183,9 @@ const Details = () => {
         media_type: mediaType,
         addedAt: Date.now(),
       });
-      toast.success('Added to watchlist');
+      toast({
+        title: "Added to watchlist",
+      });
     }
   };
 

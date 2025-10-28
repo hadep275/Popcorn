@@ -10,6 +10,7 @@ import Details from "./pages/Details";
 import Search from "./pages/Search";
 import MyList from "./pages/MyList";
 import Profile from "./pages/Profile";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/search" element={<Search />} />
               <Route path="/my-list" element={<MyList />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/install" element={<Install />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

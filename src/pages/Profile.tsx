@@ -1,4 +1,4 @@
-import { User, Key, Save, Eye, EyeOff } from "lucide-react";
+import { User, Key, Save, Eye, EyeOff, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { apiKeys, setApiKeys, userProfile, setUserProfile, hasApiKeys } = useApiKeys();
@@ -158,6 +159,15 @@ const Profile = () => {
         </div>
 
         {/* App Info */}
+        <div className="mb-8 p-6 bg-card rounded-2xl shadow-card border border-border">
+          <Link to="/install">
+            <Button variant="outline" className="w-full gap-2">
+              <Download size={18} />
+              Install App
+            </Button>
+          </Link>
+        </div>
+
         <div className="text-center text-sm text-muted-foreground">
           <p>Version 1.0.0</p>
           <p className="mt-1">All data stored locally on your device 💖</p>
