@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Heart, Bookmark, Star, Check, SkipForward } from "lucide-react";
+import { ArrowLeft, Play, Heart, Bookmark, Star, Check, SkipForward, ExternalLink, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
@@ -41,6 +41,8 @@ const Details = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<number>(1);
   const [showPlayer, setShowPlayer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [videoSource, setVideoSource] = useState<'vidsrc' | 'vidsrc2' | 'embedsu'>('vidsrc');
+  const [showChromeBanner, setShowChromeBanner] = useState(false);
 
   const isTvShow = mediaType === 'tv';
   const showId = id ? parseInt(id) : 0;
@@ -141,14 +143,27 @@ const Details = () => {
     : null;
   
   const getPlayerUrl = () => {
-    if (isTvShow) {
-      return `https://vidsrc.to/embed/tv/${id}/${selectedSeason}/${selectedEpisode}`;
-    }
-    return `https://vidsrc.to/embed/movie/${id}`;
+    const sources = {
+      vidsrc: isTvShow 
+        ? `https://vidsrc.to/embed/tv/${id}/${selectedSeason}/${selectedEpisode}`
+        : `https://vidsrc.to/embed/movie/${id}`,
+      vidsrc2: isTvShow
+        ? `https://vidsrc.xyz/embed/tv/${id}/${selectedSeason}-${selectedEpisode}`
+        : `https://vidsrc.xyz/embed/movie/${id}`,
+      embedsu: isTvShow
+        ? `https://embed.su/embed/tv/${id}/${selectedSeason}/${selectedEpisode}`
+        : `https://embed.su/embed/movie/${id}`
+    };
+    return sources[videoSource];
   };
 
   const handlePlayClick = () => {
     setShowPlayer(true);
+    
+    // Show Chrome banner after a brief delay to check if video loads
+    setTimeout(() => {
+      setShowChromeBanner(true);
+    }, 3000);
     
     // Update episode tracking for TV shows
     if (isTvShow && id) {
@@ -388,9 +403,60 @@ const Details = () => {
 
           {/* Video Player */}
           {showPlayer && (
-            <div className="mb-6">
+            <div className="mb-6 space-y-3">
+              {/* Chrome troubleshooting banner */}
+              {showChromeBanner && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex items-start gap-3 animate-in fade-in-50">
+                  <AlertCircle className="text-amber-500 mt-0.5 flex-shrink-0" size={18} />
+                  <div className="flex-1 text-sm">
+                    <p className="font-medium text-foreground mb-1">Video not loading?</p>
+                    <p className="text-muted-foreground text-xs">
+                      Chrome users: Try switching sources below, disable ad-blockers, or open in a new tab
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Source Switcher */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-muted-foreground">Source:</span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={videoSource === 'vidsrc' ? 'default' : 'outline'}
+                    onClick={() => setVideoSource('vidsrc')}
+                  >
+                    VidSrc
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={videoSource === 'vidsrc2' ? 'default' : 'outline'}
+                    onClick={() => setVideoSource('vidsrc2')}
+                  >
+                    VidSrc 2
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={videoSource === 'embedsu' ? 'default' : 'outline'}
+                    onClick={() => setVideoSource('embedsu')}
+                  >
+                    Embed
+                  </Button>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1.5 ml-auto"
+                  onClick={() => window.open(getPlayerUrl(), '_blank')}
+                >
+                  <ExternalLink size={14} />
+                  Open in New Tab
+                </Button>
+              </div>
+              
               <div className="aspect-video bg-card rounded-lg overflow-hidden">
                 <iframe
+                  key={`${videoSource}-${id}-${selectedSeason}-${selectedEpisode}`}
                   src={getPlayerUrl()}
                   className="w-full h-full"
                   allowFullScreen
@@ -401,7 +467,7 @@ const Details = () => {
               </div>
               {/* Next Episode Button for TV Shows */}
               {isTvShow && episodes.length > 0 && (
-                <div className="mt-3 flex gap-2">
+                <div className="flex gap-2">
                   <Button 
                     onClick={handleNextEpisode}
                     className="flex-1 gap-2"
