@@ -164,3 +164,60 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* 🚫 Block VidSrc Popup Ads & Overlays */
+@layer components {
+  /* Block all popup/modal overlays from video iframes */
+  iframe[src*="vidsrc"] ~ div[style*="position: fixed"],
+  iframe[src*="vidsrc"] ~ div[style*="position: absolute"][style*="z-index"],
+  iframe[src*="embed"] ~ div[style*="position: fixed"],
+  iframe[src*="embed"] ~ div[style*="position: absolute"][style*="z-index"] {
+    display: none !important;
+    pointer-events: none !important;
+  }
+
+  /* Prevent click hijacking on video containers */
+  .video-container {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Block suspicious overlays */
+  [class*="overlay"],
+  [class*="popup"],
+  [class*="modal"]:not([role="dialog"]) {
+    z-index: auto !important;
+  }
+}
+
+/* 🎬 Splash Screen Animation */
+@keyframes splash-fade {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes splash-pop {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(5deg); }
+  70% { transform: scale(0.95) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.splash-screen {
+  animation: splash-fade 2s ease-in-out forwards;
+}
+
+.splash-logo {
+  animation: splash-pop 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* 🔄 Pull to Refresh */
+@keyframes pull-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+.pull-indicator {
+  animation: pull-bounce 1s ease-in-out infinite;
+}

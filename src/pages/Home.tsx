@@ -5,9 +5,11 @@ import HeroSection from "@/components/HeroSection";
 import ContentRow from "@/components/ContentRow";
 import BottomNav from "@/components/BottomNav";
 import InstallPrompt from "@/components/InstallPrompt";
+import PullToRefresh from "@/components/PullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import mascot from "@/assets/popcorn-mascot.png";
+import { toast } from "@/hooks/use-toast";
 
 const Home = () => {
   const { apiKeys, hasApiKeys } = useApiKeys();
@@ -116,23 +118,71 @@ const Home = () => {
       media_type: mediaType,
     }));
 
+  const handleRefresh = async () => {
+    try {
+      const [
+        trendingData,
+        popularData,
+        topRatedData,
+        nowPlayingData,
+        upcomingData,
+        popularTvData,
+        topRatedTvData,
+        actionData,
+        comedyData,
+      ] = await Promise.all([
+        tmdbService.getTrending(apiKeys.tmdb),
+        tmdbService.getPopular(apiKeys.tmdb),
+        tmdbService.getTopRated(apiKeys.tmdb),
+        tmdbService.getNowPlaying(apiKeys.tmdb),
+        tmdbService.getUpcoming(apiKeys.tmdb),
+        tmdbService.getPopular(apiKeys.tmdb, 'tv'),
+        tmdbService.getTopRated(apiKeys.tmdb, 'tv'),
+        tmdbService.discoverByGenre(apiKeys.tmdb, 28),
+        tmdbService.discoverByGenre(apiKeys.tmdb, 35),
+      ]);
+      setTrending(trendingData);
+      setPopular(popularData);
+      setTopRated(topRatedData);
+      setNowPlaying(nowPlayingData);
+      setUpcoming(upcomingData);
+      setPopularTv(popularTvData);
+      setTopRatedTv(topRatedTvData);
+      setAction(actionData);
+      setComedy(comedyData);
+      toast({
+        title: "Content refreshed! 🍿",
+        description: "All movies and shows are up to date",
+      });
+    } catch (error) {
+      console.error("Error refreshing:", error);
+      toast({
+        title: "Refresh failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <HeroSection />
-      <div className="mt-8 animate-fade-in space-y-6">
-        <ContentRow title="Trending Now" items={formatItems(trending)} />
-        <ContentRow title="Now Playing in Theaters" items={formatItems(nowPlaying)} />
-        <ContentRow title="Popular Movies" items={formatItems(popular)} />
-        <ContentRow title="Coming Soon" items={formatItems(upcoming)} />
-        <ContentRow title="Action Movies" items={formatItems(action)} />
-        <ContentRow title="Comedy Movies" items={formatItems(comedy)} />
-        <ContentRow title="Top Rated Movies" items={formatItems(topRated)} />
-        <ContentRow title="Popular TV Shows" items={formatItems(popularTv, 'tv')} />
-        <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv, 'tv')} />
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-background pb-20">
+        <HeroSection />
+        <div className="mt-8 animate-fade-in space-y-6">
+          <ContentRow title="Trending Now" items={formatItems(trending)} />
+          <ContentRow title="Now Playing in Theaters" items={formatItems(nowPlaying)} />
+          <ContentRow title="Popular Movies" items={formatItems(popular)} />
+          <ContentRow title="Coming Soon" items={formatItems(upcoming)} />
+          <ContentRow title="Action Movies" items={formatItems(action)} />
+          <ContentRow title="Comedy Movies" items={formatItems(comedy)} />
+          <ContentRow title="Top Rated Movies" items={formatItems(topRated)} />
+          <ContentRow title="Popular TV Shows" items={formatItems(popularTv, 'tv')} />
+          <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv, 'tv')} />
+        </div>
+        <InstallPrompt />
+        <BottomNav />
       </div>
-      <InstallPrompt />
-      <BottomNav />
-    </div>
+    </PullToRefresh>
   );
 };
 

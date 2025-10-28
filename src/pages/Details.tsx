@@ -454,15 +454,16 @@ const Details = () => {
                 </Button>
               </div>
               
-              <div className="aspect-video bg-card rounded-lg overflow-hidden">
+              <div className="aspect-video bg-card rounded-lg overflow-hidden video-container relative">
                 <iframe
                   key={`${videoSource}-${id}-${selectedSeason}-${selectedEpisode}`}
                   src={getPlayerUrl()}
                   className="w-full h-full"
                   allowFullScreen
-                  sandbox="allow-scripts allow-same-origin allow-presentation"
-                  referrerPolicy="origin"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups-to-escape-sandbox"
+                  referrerPolicy="no-referrer"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  style={{ border: 'none' }}
                 />
               </div>
               {/* Next Episode Button for TV Shows */}

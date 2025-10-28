@@ -7,6 +7,7 @@ import { ApiKeysProvider } from "./contexts/ApiKeysContext";
 import { WatchlistProvider } from "./contexts/WatchlistContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { EpisodeTrackingProvider } from "./contexts/EpisodeTrackingContext";
+import SplashScreen from "./components/SplashScreen";
 import Home from "./pages/Home";
 import Details from "./pages/Details";
 import Search from "./pages/Search";
@@ -24,6 +25,7 @@ const App = () => (
         <WatchlistProvider>
           <EpisodeTrackingProvider>
             <TooltipProvider>
+              <SplashScreen />
               <Toaster />
               <Sonner />
               <BrowserRouter basename={import.meta.env.BASE_URL}>
