@@ -50,10 +50,9 @@ const Details = () => {
   const isTvShow = mediaType === 'tv';
   const showId = id ? parseInt(id) : 0;
 
-  // Initialize advanced ad blocker
+  // Initialize advanced ad blocker (singleton)
   useEffect(() => {
-    const adBlocker = new AdvancedAdBlocker();
-    return () => adBlocker.destroy();
+    AdvancedAdBlocker.getInstance();
   }, []);
 
   useEffect(() => {

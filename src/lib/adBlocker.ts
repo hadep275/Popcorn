@@ -1,4 +1,7 @@
 export class AdvancedAdBlocker {
+  private static instance: AdvancedAdBlocker | null = null;
+  private static isInitialized = false;
+
   private blockedPatterns = [
     // VidSrc-specific ad networks
     'acscdn.com',
@@ -49,13 +52,25 @@ export class AdvancedAdBlocker {
   private originalXHR: typeof XMLHttpRequest;
   private clickListeners: Map<Element, (e: Event) => void> = new Map();
 
-  constructor() {
+  private constructor() {
     this.originalFetch = window.fetch;
     this.originalXHR = window.XMLHttpRequest;
     this.init();
   }
 
+  public static getInstance(): AdvancedAdBlocker {
+    if (!AdvancedAdBlocker.instance) {
+      AdvancedAdBlocker.instance = new AdvancedAdBlocker();
+    }
+    return AdvancedAdBlocker.instance;
+  }
+
   private init() {
+    if (AdvancedAdBlocker.isInitialized) {
+      console.log('🛡️ Ad Blocker already initialized, skipping');
+      return;
+    }
+
     this.interceptFetch();
     this.interceptXHR();
     this.blockWindowOpen();
@@ -63,6 +78,8 @@ export class AdvancedAdBlocker {
     this.setupClickProtection();
     this.setupMutationObserver();
     this.blockIframeMessages();
+    
+    AdvancedAdBlocker.isInitialized = true;
     console.log('🛡️ Advanced Ad Blocker initialized');
   }
 
