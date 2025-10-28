@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://hadep275.github.io/popcorn/
+**URL**: https://hadep275.github.io/Popcorn/
 
 
 **Use your preferred IDE**
