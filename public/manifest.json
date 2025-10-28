@@ -1,7 +1,7 @@
 {
   "name": "Popcorn",
   "short_name": "Popcorn",
-  "description": "Discover and explore unlimited movies and TV shows",
+  "description": "Your personal movie and TV show companion",
   "start_url": "/popcorn/",
   "scope": "/popcorn/",
   "display": "standalone",
