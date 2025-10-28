@@ -7,6 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import InstallPrompt from "@/components/InstallPrompt";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import mascot from "@/assets/popcorn-mascot.png";
 
 const Home = () => {
   const { apiKeys, hasApiKeys } = useApiKeys();
@@ -73,7 +74,13 @@ const Home = () => {
   if (!hasApiKeys) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 pb-20">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-md animate-in fade-in-50 zoom-in-50 duration-500">
+          <img
+            src={mascot}
+            alt="Popcorn mascot logo"
+            className="mx-auto mb-4 h-24 w-24 md:h-28 md:w-28 drop-shadow-lg motion-safe:animate-bounce"
+            loading="eager"
+          />
           <h1 className="text-3xl font-bold mb-4">Welcome! 🎬✨</h1>
           <p className="text-muted-foreground mb-6 space-y-2">
             <span className="block">To start exploring movies and shows, please add your TMDB API key in your profile to load content.</span>
