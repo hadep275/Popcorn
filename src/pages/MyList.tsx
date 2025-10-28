@@ -5,6 +5,7 @@ import ContentCard from "@/components/ContentCard";
 import { useWatchlist } from "@/contexts/WatchlistContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const MyList = () => {
   const navigate = useNavigate();
@@ -85,8 +86,8 @@ const MyList = () => {
             ) : (
               <div className="text-center text-muted-foreground mt-20">
                 <img 
-                  src="/pwa-192x192.png" 
-                  alt="Popcorn" 
+                  src={popcornMascot}
+                  alt="Popcorn Mascot" 
                   className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
                 />
                 <p className="font-medium">No items in continue watching</p>
@@ -120,8 +121,8 @@ const MyList = () => {
             ) : (
               <div className="text-center text-muted-foreground mt-20">
                 <img 
-                  src="/pwa-192x192.png" 
-                  alt="Popcorn" 
+                  src={popcornMascot}
+                  alt="Popcorn Mascot" 
                   className="w-24 h-24 mx-auto mb-4 opacity-50 animate-bounce"
                 />
                 <p className="font-medium">No favorites yet</p>
@@ -155,8 +156,8 @@ const MyList = () => {
             ) : (
               <div className="text-center text-muted-foreground mt-20">
                 <img 
-                  src="/pwa-192x192.png" 
-                  alt="Popcorn" 
+                  src={popcornMascot}
+                  alt="Popcorn Mascot" 
                   className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
                 />
                 <p className="font-medium">Your watchlist is empty</p>

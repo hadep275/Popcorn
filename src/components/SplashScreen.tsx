@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const SplashScreen = () => {
   const [show, setShow] = useState(true);
@@ -27,8 +28,8 @@ const SplashScreen = () => {
     <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center splash-screen">
       <div className="text-center">
         <img 
-          src="/pwa-192x192.png" 
-          alt="Popcorn" 
+          src={popcornMascot}
+          alt="Popcorn Mascot" 
           className="w-32 h-32 mx-auto mb-4 splash-logo drop-shadow-2xl"
         />
         <h1 className="text-4xl font-bold text-primary animate-pulse">Popcorn</h1>

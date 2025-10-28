@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
@@ -78,7 +79,7 @@ const PullToRefresh = ({ onRefresh, children }: PullToRefreshProps) => {
         >
           <div className={`text-center ${isRefreshing ? 'pull-indicator' : ''}`}>
             <img 
-              src="/pwa-192x192.png" 
+              src={popcornMascot}
               alt="Pull to refresh" 
               className="w-12 h-12 mb-2"
               style={{ 

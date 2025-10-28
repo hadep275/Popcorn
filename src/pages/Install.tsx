@@ -3,6 +3,7 @@ import { Download, Check, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const Install = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -70,8 +71,8 @@ const Install = () => {
         <div className="text-center mb-8">
           <div className="w-32 h-32 mx-auto mb-6 relative">
             <img 
-              src="/pwa-192x192.png" 
-              alt="Popcorn" 
+              src={popcornMascot}
+              alt="Popcorn Mascot" 
               className="w-full h-full rounded-3xl animate-[float_3s_ease-in-out_infinite]"
             />
             <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center animate-pulse">

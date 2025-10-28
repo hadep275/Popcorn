@@ -9,6 +9,7 @@ import BottomNav from "@/components/BottomNav";
 import ContentCard from "@/components/ContentCard";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const Search = () => {
   const navigate = useNavigate();
@@ -198,7 +199,7 @@ const Search = () => {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <img 
-              src="/pwa-192x192.png" 
+              src={popcornMascot}
               alt="Loading" 
               className="w-16 h-16 mb-4 animate-bounce"
             />
@@ -218,8 +219,8 @@ const Search = () => {
         ) : query || selectedGenre || selectedYear || selectedRating ? (
           <div className="text-center text-muted-foreground mt-20">
             <img 
-              src="/pwa-192x192.png" 
-              alt="Popcorn" 
+              src={popcornMascot}
+              alt="Popcorn Mascot" 
               className="w-24 h-24 mx-auto mb-4 opacity-30 grayscale"
             />
             <p className="font-medium">No results found</p>
@@ -228,8 +229,8 @@ const Search = () => {
         ) : (
           <div className="text-center text-muted-foreground mt-20">
             <img 
-              src="/pwa-192x192.png" 
-              alt="Popcorn" 
+              src={popcornMascot}
+              alt="Popcorn Mascot" 
               className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
             />
             <p className="font-medium">Search for your favorite {mediaType === 'movie' ? 'movies' : 'TV shows'}</p>
