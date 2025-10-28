@@ -164,10 +164,19 @@ const Home = () => {
     }
   };
 
+  // Get random featured content from trending
+  const featuredContent = trending.length > 0 ? {
+    id: trending[0].id,
+    title: trending[0].title || trending[0].name || "",
+    overview: trending[0].overview || "",
+    backdrop_path: trending[0].backdrop_path || "",
+    media_type: 'movie' as 'movie' | 'tv',
+  } : undefined;
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="min-h-screen bg-background pb-20">
-        <HeroSection />
+        <HeroSection featuredContent={featuredContent} />
         <div className="mt-8 animate-fade-in space-y-6">
           <ContentRow title="Trending Now" items={formatItems(trending)} />
           <ContentRow title="Now Playing in Theaters" items={formatItems(nowPlaying)} />
