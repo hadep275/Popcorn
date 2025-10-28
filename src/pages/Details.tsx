@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star } from "lucide-react";
+import { ArrowLeft, Play, Heart, Bookmark, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
+import { useWatchlist } from "@/contexts/WatchlistContext";
 import { tmdbService, Movie, Cast, Video, Episode } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
+import { toast } from "sonner";
 
 const Details = () => {
   const { id, mediaType } = useParams<{ id: string; mediaType: 'movie' | 'tv' }>();
   const navigate = useNavigate();
   const { apiKeys, hasApiKeys } = useApiKeys();
+  const { 
+    isFavorite, 
+    addToFavorites, 
+    removeFromFavorites,
+    isInWatchlist,
+    addToWatchlist,
+    removeFromWatchlist,
+    addToContinueWatching
+  } = useWatchlist();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
@@ -114,6 +125,60 @@ const Details = () => {
 
   const handlePlayClick = () => {
     setShowPlayer(true);
+    
+    // Add to continue watching
+    if (movie && id && mediaType) {
+      addToContinueWatching({
+        id: parseInt(id),
+        title: title,
+        poster_path: movie.poster_path || '',
+        vote_average: movie.vote_average,
+        media_type: mediaType,
+        season: isTvShow ? selectedSeason : undefined,
+        episode: isTvShow ? selectedEpisode : undefined,
+        progress: 0,
+        addedAt: Date.now(),
+        lastWatchedAt: Date.now(),
+      });
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (!movie || !id || !mediaType) return;
+    
+    if (isFavorite(parseInt(id))) {
+      removeFromFavorites(parseInt(id));
+      toast.success('Removed from favorites');
+    } else {
+      addToFavorites({
+        id: parseInt(id),
+        title: title,
+        poster_path: movie.poster_path || '',
+        vote_average: movie.vote_average,
+        media_type: mediaType,
+        addedAt: Date.now(),
+      });
+      toast.success('Added to favorites');
+    }
+  };
+
+  const handleToggleWatchlist = () => {
+    if (!movie || !id || !mediaType) return;
+    
+    if (isInWatchlist(parseInt(id))) {
+      removeFromWatchlist(parseInt(id));
+      toast.success('Removed from watchlist');
+    } else {
+      addToWatchlist({
+        id: parseInt(id),
+        title: title,
+        poster_path: movie.poster_path || '',
+        vote_average: movie.vote_average,
+        media_type: mediaType,
+        addedAt: Date.now(),
+      });
+      toast.success('Added to watchlist');
+    }
   };
 
   return (
@@ -194,8 +259,27 @@ const Details = () => {
               <Play size={20} fill="white" />
               Play
             </Button>
-            <Button size="lg" variant="secondary" className="gap-2">
-              <Plus size={20} />
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="gap-2"
+              onClick={handleToggleFavorite}
+            >
+              <Heart 
+                size={20} 
+                className={isFavorite(parseInt(id!)) ? 'fill-primary text-primary' : ''} 
+              />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="gap-2"
+              onClick={handleToggleWatchlist}
+            >
+              <Bookmark 
+                size={20} 
+                className={isInWatchlist(parseInt(id!)) ? 'fill-primary text-primary' : ''} 
+              />
             </Button>
           </div>
 
