@@ -156,7 +156,7 @@ export class AdvancedAdBlocker {
       'tinyurl',
     ];
 
-    // Intercept all navigation attempts
+    // Intercept navigation attempts via click events
     window.addEventListener('beforeunload', (e) => {
       const target = (e.target as any)?.activeElement?.href;
       if (target && suspiciousPatterns.some(pattern => target.includes(pattern))) {
@@ -165,20 +165,27 @@ export class AdvancedAdBlocker {
       }
     }, true);
 
-    // Prevent location changes
-    const originalLocationSet = Object.getOwnPropertyDescriptor(window, 'location')?.set;
-    if (originalLocationSet) {
-      Object.defineProperty(window, 'location', {
-        set: function(value) {
-          const url = value.toString();
-          if (suspiciousPatterns.some(pattern => url.includes(pattern))) {
-            console.log('🚫 Blocked location change:', url);
-            return;
-          }
-          return originalLocationSet.call(window, value);
-        }
-      });
-    }
+    // Monitor and block suspicious navigation via history API
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+    
+    history.pushState = function(...args) {
+      const url = args[2]?.toString() || '';
+      if (suspiciousPatterns.some(pattern => url.includes(pattern))) {
+        console.log('🚫 Blocked pushState navigation:', url);
+        return;
+      }
+      return originalPushState.apply(this, args);
+    };
+
+    history.replaceState = function(...args) {
+      const url = args[2]?.toString() || '';
+      if (suspiciousPatterns.some(pattern => url.includes(pattern))) {
+        console.log('🚫 Blocked replaceState navigation:', url);
+        return;
+      }
+      return originalReplaceState.apply(this, args);
+    };
   }
 
   private setupClickProtection() {
