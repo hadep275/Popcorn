@@ -31,7 +31,7 @@ const ContentCard = ({ item }: ContentCardProps) => {
           <div className="flex items-center gap-1 mt-1">
             <Star size={12} className="fill-primary text-primary" />
             <span className="text-xs text-muted-foreground">
-              {item.vote_average.toFixed(1)}
+              {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}
             </span>
           </div>
         </div>

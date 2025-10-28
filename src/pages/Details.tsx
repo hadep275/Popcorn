@@ -72,6 +72,7 @@ const Details = () => {
 
   const title = movie.title || movie.name || "Unknown Title";
   const releaseYear = movie.release_date?.split("-")[0] || movie.first_air_date?.split("-")[0] || "N/A";
+  const isTvShow = Boolean(movie.name || movie.number_of_seasons);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -102,11 +103,34 @@ const Details = () => {
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
               <Star size={16} className="fill-primary text-primary" />
-              <span>{movie.vote_average.toFixed(1)}</span>
+              <span>{movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
             </div>
             <span>{releaseYear}</span>
-            {movie.runtime && <span>{movie.runtime} min</span>}
+            {isTvShow ? (
+              <>
+                {movie.number_of_seasons && (
+                  <span>{movie.number_of_seasons} Season{movie.number_of_seasons > 1 ? 's' : ''}</span>
+                )}
+                {movie.number_of_episodes && (
+                  <span>{movie.number_of_episodes} Episodes</span>
+                )}
+                {movie.episode_run_time?.[0] && (
+                  <span>{movie.episode_run_time[0]} min/ep</span>
+                )}
+              </>
+            ) : (
+              movie.runtime && <span>{movie.runtime} min</span>
+            )}
           </div>
+
+          {/* TV Show Status */}
+          {isTvShow && movie.status && (
+            <div className="mb-4">
+              <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                {movie.status}
+              </span>
+            </div>
+          )}
 
           {/* Genres */}
           {movie.genres && movie.genres.length > 0 && (

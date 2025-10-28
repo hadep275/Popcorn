@@ -15,6 +15,11 @@ export interface Movie {
   genres?: { id: number; name: string }[];
   runtime?: number;
   number_of_seasons?: number;
+  number_of_episodes?: number;
+  status?: string;
+  episode_run_time?: number[];
+  created_by?: { id: number; name: string }[];
+  networks?: { id: number; name: string; logo_path: string }[];
 }
 
 export interface Cast {
