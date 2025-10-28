@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Clock, Heart, Bookmark } from "lucide-react";
+import { Clock, Heart, Bookmark, Trash2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ContentCard from "@/components/ContentCard";
 import { useWatchlist } from "@/contexts/WatchlistContext";
@@ -69,12 +69,13 @@ const MyList = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="mt-2"
+                        className="mt-2 gap-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeFromContinueWatching(item.id);
                         }}
                       >
+                        <Trash2 size={16} />
                         Remove
                       </Button>
                     </div>
@@ -99,15 +100,15 @@ const MyList = () => {
                     <ContentCard item={item} />
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                      size="icon"
+                      className="absolute top-2 right-2 bg-background/80 hover:bg-background w-8 h-8"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         removeFromFavorites(item.id);
                       }}
                     >
-                      <Heart size={16} className="fill-primary text-primary" />
+                      <Trash2 size={16} />
                     </Button>
                   </div>
                 ))}
@@ -130,15 +131,15 @@ const MyList = () => {
                     <ContentCard item={item} />
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                      size="icon"
+                      className="absolute top-2 right-2 bg-background/80 hover:bg-background w-8 h-8"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         removeFromWatchlist(item.id);
                       }}
                     >
-                      <Bookmark size={16} className="fill-primary text-primary" />
+                      <Trash2 size={16} />
                     </Button>
                   </div>
                 ))}

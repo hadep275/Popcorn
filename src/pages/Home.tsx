@@ -4,6 +4,7 @@ import { tmdbService, Movie } from "@/services/tmdb";
 import HeroSection from "@/components/HeroSection";
 import ContentRow from "@/components/ContentRow";
 import BottomNav from "@/components/BottomNav";
+import InstallPrompt from "@/components/InstallPrompt";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -75,7 +76,7 @@ const Home = () => {
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-bold mb-4">Welcome! 🎬✨</h1>
           <p className="text-muted-foreground mb-6">
-            To start exploring movies and shows, please add your TMDB API key in your profile.
+            To start exploring movies and shows, please add your TMDB API key in your profile. YouTube API key is optional for better trailer support.
           </p>
           <Button asChild className="gap-2">
             <Link to="/profile">Go to Profile →</Link>
@@ -121,6 +122,7 @@ const Home = () => {
         <ContentRow title="Popular TV Shows" items={formatItems(popularTv, 'tv')} />
         <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv, 'tv')} />
       </div>
+      <InstallPrompt />
       <BottomNav />
     </div>
   );
