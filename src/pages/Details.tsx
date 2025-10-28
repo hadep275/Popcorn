@@ -207,7 +207,9 @@ const Details = () => {
                   src={getPlayerUrl()}
                   className="w-full h-full"
                   allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  sandbox="allow-scripts allow-same-origin allow-presentation"
+                  referrerPolicy="origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 />
               </div>
             </div>
