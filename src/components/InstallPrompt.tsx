@@ -106,7 +106,7 @@ const InstallPrompt = () => {
             ) : (
               <>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Get quick access and work offline
+                  Install for the best streaming experience!
                 </p>
                 <div className="flex gap-2">
                   <Button
