@@ -84,8 +84,12 @@ const MyList = () => {
               </div>
             ) : (
               <div className="text-center text-muted-foreground mt-20">
-                <Clock size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No items in continue watching</p>
+                <img 
+                  src="/pwa-192x192.png" 
+                  alt="Popcorn" 
+                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
+                />
+                <p className="font-medium">No items in continue watching</p>
                 <p className="text-sm mt-2">Start watching something to see it here</p>
               </div>
             )}
@@ -115,8 +119,12 @@ const MyList = () => {
               </div>
             ) : (
               <div className="text-center text-muted-foreground mt-20">
-                <Heart size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No favorites yet</p>
+                <img 
+                  src="/pwa-192x192.png" 
+                  alt="Popcorn" 
+                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-bounce"
+                />
+                <p className="font-medium">No favorites yet</p>
                 <p className="text-sm mt-2">Add movies and shows you love</p>
               </div>
             )}
@@ -146,8 +154,12 @@ const MyList = () => {
               </div>
             ) : (
               <div className="text-center text-muted-foreground mt-20">
-                <Bookmark size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Your watchlist is empty</p>
+                <img 
+                  src="/pwa-192x192.png" 
+                  alt="Popcorn" 
+                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
+                />
+                <p className="font-medium">Your watchlist is empty</p>
                 <p className="text-sm mt-2">Add movies and shows to watch later</p>
               </div>
             )}

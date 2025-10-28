@@ -196,8 +196,13 @@ const Search = () => {
 
         {/* Results */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="flex flex-col items-center justify-center py-12">
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Loading" 
+              className="w-16 h-16 mb-4 animate-bounce"
+            />
+            <p className="text-sm text-muted-foreground">Searching...</p>
           </div>
         ) : results.length > 0 ? (
           <div>
@@ -212,12 +217,23 @@ const Search = () => {
           </div>
         ) : query || selectedGenre || selectedYear || selectedRating ? (
           <div className="text-center text-muted-foreground mt-20">
-            No results found
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Popcorn" 
+              className="w-24 h-24 mx-auto mb-4 opacity-30 grayscale"
+            />
+            <p className="font-medium">No results found</p>
+            <p className="text-sm mt-2">Try different search terms or filters</p>
           </div>
         ) : (
           <div className="text-center text-muted-foreground mt-20">
-            <SearchIcon size={48} className="mx-auto mb-4 opacity-50" />
-            <p>Search for your favorite {mediaType === 'movie' ? 'movies' : 'TV shows'}</p>
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Popcorn" 
+              className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
+            />
+            <p className="font-medium">Search for your favorite {mediaType === 'movie' ? 'movies' : 'TV shows'}</p>
+            <p className="text-sm mt-2">Use filters to refine your search</p>
           </div>
         )}
       </div>

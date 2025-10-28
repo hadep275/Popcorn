@@ -68,14 +68,27 @@ const Install = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="p-6 max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <img src="/pwa-192x192.png" alt="Popcorn" className="w-20 h-20 rounded-2xl" />
+          <div className="w-32 h-32 mx-auto mb-6 relative">
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Popcorn" 
+              className="w-full h-full rounded-3xl animate-[float_3s_ease-in-out_infinite]"
+            />
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center animate-pulse">
+              <Download size={16} className="text-primary-foreground" />
+            </div>
           </div>
           <h1 className="text-3xl font-bold mb-2">Install Popcorn</h1>
           <p className="text-muted-foreground">
             Get the full app experience on your device
           </p>
         </div>
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+          }
+        `}</style>
 
         <div className="space-y-4 mb-8">
           <Card className="p-6">

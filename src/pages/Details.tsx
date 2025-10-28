@@ -145,7 +145,7 @@ const Details = () => {
   const getPlayerUrl = () => {
     const sources = {
       vidsrc: isTvShow 
-        ? `https://vidsrc.to/embed/tv/${id}/${selectedSeason}/${selectedEpisode}`
+        ? `https://vidsrc.to/embed/tv/${id}/${selectedSeason}/${selectedEpisode}?autonext=1`
         : `https://vidsrc.to/embed/movie/${id}`,
       vidsrc2: isTvShow
         ? `https://vidsrc.xyz/embed/tv/${id}/${selectedSeason}-${selectedEpisode}`
