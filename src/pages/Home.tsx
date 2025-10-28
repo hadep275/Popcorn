@@ -12,6 +12,12 @@ const Home = () => {
   const [trending, setTrending] = useState<Movie[]>([]);
   const [popular, setPopular] = useState<Movie[]>([]);
   const [topRated, setTopRated] = useState<Movie[]>([]);
+  const [nowPlaying, setNowPlaying] = useState<Movie[]>([]);
+  const [upcoming, setUpcoming] = useState<Movie[]>([]);
+  const [popularTv, setPopularTv] = useState<Movie[]>([]);
+  const [topRatedTv, setTopRatedTv] = useState<Movie[]>([]);
+  const [action, setAction] = useState<Movie[]>([]);
+  const [comedy, setComedy] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,14 +29,36 @@ const Home = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [trendingData, popularData, topRatedData] = await Promise.all([
+        const [
+          trendingData,
+          popularData,
+          topRatedData,
+          nowPlayingData,
+          upcomingData,
+          popularTvData,
+          topRatedTvData,
+          actionData,
+          comedyData,
+        ] = await Promise.all([
           tmdbService.getTrending(apiKeys.tmdb),
           tmdbService.getPopular(apiKeys.tmdb),
           tmdbService.getTopRated(apiKeys.tmdb),
+          tmdbService.getNowPlaying(apiKeys.tmdb),
+          tmdbService.getUpcoming(apiKeys.tmdb),
+          tmdbService.getPopular(apiKeys.tmdb, 'tv'),
+          tmdbService.getTopRated(apiKeys.tmdb, 'tv'),
+          tmdbService.discoverByGenre(apiKeys.tmdb, 28), // Action
+          tmdbService.discoverByGenre(apiKeys.tmdb, 35), // Comedy
         ]);
         setTrending(trendingData);
         setPopular(popularData);
         setTopRated(topRatedData);
+        setNowPlaying(nowPlayingData);
+        setUpcoming(upcomingData);
+        setPopularTv(popularTvData);
+        setTopRatedTv(topRatedTvData);
+        setAction(actionData);
+        setComedy(comedyData);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -81,10 +109,16 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <HeroSection />
-      <div className="mt-8 animate-fade-in">
+      <div className="mt-8 animate-fade-in space-y-6">
         <ContentRow title="Trending Now" items={formatItems(trending)} />
+        <ContentRow title="Now Playing in Theaters" items={formatItems(nowPlaying)} />
         <ContentRow title="Popular Movies" items={formatItems(popular)} />
-        <ContentRow title="Top Rated" items={formatItems(topRated)} />
+        <ContentRow title="Coming Soon" items={formatItems(upcoming)} />
+        <ContentRow title="Action Movies" items={formatItems(action)} />
+        <ContentRow title="Comedy Movies" items={formatItems(comedy)} />
+        <ContentRow title="Top Rated Movies" items={formatItems(topRated)} />
+        <ContentRow title="Popular TV Shows" items={formatItems(popularTv)} />
+        <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv)} />
       </div>
       <BottomNav />
     </div>

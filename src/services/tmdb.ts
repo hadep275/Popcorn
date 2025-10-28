@@ -69,6 +69,36 @@ export const tmdbService = {
     return data.results as Movie[];
   },
 
+  // Now playing (in theaters)
+  getNowPlaying: async (apiKey: string) => {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/now_playing?api_key=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch now playing');
+    const data = await response.json();
+    return data.results as Movie[];
+  },
+
+  // Upcoming movies
+  getUpcoming: async (apiKey: string) => {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/upcoming?api_key=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch upcoming');
+    const data = await response.json();
+    return data.results as Movie[];
+  },
+
+  // Airing today (TV)
+  getAiringToday: async (apiKey: string) => {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/tv/airing_today?api_key=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch airing today');
+    const data = await response.json();
+    return data.results as Movie[];
+  },
+
   // Movie/Show details
   getDetails: async (apiKey: string, id: string, mediaType: 'movie' | 'tv' = 'movie') => {
     const response = await fetch(
