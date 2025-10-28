@@ -9,6 +9,7 @@ interface ApiKeys {
 interface UserProfile {
   name: string;
   email: string;
+  region: string;
 }
 
 interface ApiKeysContextType {
@@ -30,6 +31,7 @@ export function ApiKeysProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile>('userProfile', {
     name: '',
     email: '',
+    region: 'US',
   });
 
   const hasApiKeys = Boolean(apiKeys.tmdb);

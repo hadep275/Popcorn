@@ -1,10 +1,18 @@
-import { User, Key, Save, Eye, EyeOff, Download } from "lucide-react";
+import { User, Key, Save, Eye, EyeOff, Download, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import BottomNav from "@/components/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
+import { countries } from "@/lib/countries";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -79,6 +87,33 @@ const Profile = () => {
                 placeholder="Enter your email"
                 className="mt-1.5"
               />
+            </div>
+            <div>
+              <Label htmlFor="region" className="text-card-foreground flex items-center gap-2">
+                <Globe size={16} />
+                Region (for streaming availability)
+              </Label>
+              <Select
+                value={localProfile.region}
+                onValueChange={(value) => setLocalProfile({ ...localProfile, region: value })}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select your region" />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-popover">
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      <span className="flex items-center gap-2">
+                        <span>{country.flag}</span>
+                        <span>{country.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Used to show which streaming services have content in your region
+              </p>
             </div>
             <Button onClick={handleSaveProfile} className="w-full gap-2">
               <Save size={18} />
