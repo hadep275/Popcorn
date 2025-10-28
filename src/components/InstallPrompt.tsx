@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { X, Download, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -81,8 +80,8 @@ const InstallPrompt = () => {
         </button>
 
         <div className="flex gap-4 items-start pr-6">
-          <div className="w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
-            <img src={popcornMascot} alt="Popcorn Mascot" className="w-full h-full object-cover" />
+          <div className="w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden">
+            <img src="/pwa-192x192.png" alt="Popcorn App" className="w-full h-full object-cover" />
           </div>
           
           <div className="flex-1">
