@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import popcornMascot from "@/assets/popcorn-mascot.png";
 
 const NotFound = () => {
   const location = useLocation();
@@ -13,8 +14,8 @@ const NotFound = () => {
       <div className="text-center p-6">
         <div className="relative mb-8">
           <img 
-            src="/pwa-192x192.png" 
-            alt="Popcorn" 
+            src={popcornMascot} 
+            alt="Popcorn Mascot" 
             className="w-32 h-32 mx-auto animate-[wiggle_1s_ease-in-out_infinite]"
             style={{
               animation: 'wiggle 1s ease-in-out infinite, bounce 2s ease-in-out infinite'
