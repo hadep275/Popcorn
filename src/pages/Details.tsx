@@ -13,6 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import PopcornSpill from "@/components/PopcornSpill";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { AdvancedAdBlocker } from "@/lib/adBlocker";
 
 const Details = () => {
   const { id, mediaType } = useParams<{ id: string; mediaType: 'movie' | 'tv' }>();
@@ -48,6 +49,12 @@ const Details = () => {
 
   const isTvShow = mediaType === 'tv';
   const showId = id ? parseInt(id) : 0;
+
+  // Initialize advanced ad blocker
+  useEffect(() => {
+    const adBlocker = new AdvancedAdBlocker();
+    return () => adBlocker.destroy();
+  }, []);
 
   useEffect(() => {
     if (!hasApiKeys || !id || !mediaType) return;
