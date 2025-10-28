@@ -125,10 +125,10 @@ const HeroSection = ({ featuredContent }: HeroSectionProps) => {
         <div className="flex gap-3">
           <Button
             size="lg"
-            className="flex-1 gap-2 bg-gradient-hero hover:opacity-90"
+            className="flex-1 gap-2 bg-primary text-primary-foreground hover:opacity-90"
             onClick={handlePlay}
           >
-            <Play size={20} fill="white" />
+            <Play size={20} fill="currentColor" />
             Play
           </Button>
           <Button
