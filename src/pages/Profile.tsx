@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import BottomNav from "@/components/BottomNav";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -36,12 +37,15 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="p-6 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-8 text-foreground">Profile & Settings</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-foreground">Profile & Settings</h1>
+          <ThemeToggle />
+        </div>
 
         {/* User Info Card */}
         <div className="mb-8 p-6 bg-card rounded-2xl shadow-card border border-border">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-20 h-20 bg-gradient-hero rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
               <User size={40} className="text-primary-foreground" />
             </div>
             <div className="flex-1">

@@ -7,48 +7,150 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  :root {
-    /* Girly Pop Strawberry Shortcake Theme */
-    --background: 330 100% 98%;
-    --foreground: 340 80% 20%;
+  /* 🎬 DARK MODE - Movie Theater Vibes */
+  :root[data-theme="dark"] {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 340 80% 20%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 340 80% 20%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 340 82% 65%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 280 70% 75%;
-    --secondary-foreground: 340 80% 20%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 330 40% 95%;
-    --muted-foreground: 340 30% 50%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 280 70% 75%;
-    --accent-foreground: 340 80% 20%;
+    --accent: 36 100% 50%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 330 30% 90%;
-    --input: 330 30% 95%;
-    --ring: 340 82% 65%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 45 100% 51%;
+
+    --radius: 0.75rem;
+
+    /* Shadows */
+    --shadow-glow: 0 0 30px hsl(45 100% 51% / 0.15);
+    --shadow-card: 0 8px 24px hsl(0 0% 0% / 0.4);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ☀️ LIGHT MODE - Clean & Modern */
+  :root[data-theme="light"] {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 36 100% 50%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 93%;
+    --ring: 45 100% 51%;
+
+    --radius: 0.75rem;
+
+    /* Shadows */
+    --shadow-glow: 0 0 30px hsl(45 100% 51% / 0.2);
+    --shadow-card: 0 4px 16px hsl(0 0% 0% / 0.08);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 🍿 VIBRANT MODE - Buttery Popcorn Paradise */
+  :root[data-theme="vibrant"] {
+    --background: 45 60% 96%;
+    --foreground: 25 80% 20%;
+
+    --card: 45 100% 98%;
+    --card-foreground: 25 80% 20%;
+
+    --popover: 45 100% 98%;
+    --popover-foreground: 25 80% 20%;
+
+    --primary: 45 100% 51%;
+    --primary-foreground: 25 80% 20%;
+
+    --secondary: 36 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 43 50% 90%;
+    --muted-foreground: 25 50% 35%;
+
+    --accent: 14 80% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 43 40% 85%;
+    --input: 43 50% 92%;
+    --ring: 45 100% 51%;
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(340 82% 65%) 0%, hsl(280 70% 75%) 50%, hsl(200 80% 70%) 100%);
-    --gradient-overlay: linear-gradient(180deg, transparent 0%, hsl(330 100% 98%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(330 100% 99%) 100%);
-
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(340 82% 65% / 0.4);
-    --shadow-card: 0 8px 24px hsl(340 82% 65% / 0.15);
+    --shadow-glow: 0 0 40px hsl(45 100% 51% / 0.4);
+    --shadow-card: 0 8px 24px hsl(36 100% 50% / 0.2);
     
     /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Default to dark theme */
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 36 100% 50%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 45 100% 51%;
+    --radius: 0.75rem;
+    --shadow-glow: 0 0 30px hsl(45 100% 51% / 0.15);
+    --shadow-card: 0 8px 24px hsl(0 0% 0% / 0.4);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
