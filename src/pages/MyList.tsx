@@ -88,7 +88,7 @@ const MyList = () => {
                 <img 
                   src={popcornMascot}
                   alt="Popcorn Mascot" 
-                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
+                  className="w-24 h-24 mx-auto mb-4 opacity-50"
                 />
                 <p className="font-medium">No items in continue watching</p>
                 <p className="text-sm mt-2">Start watching something to see it here</p>
@@ -123,7 +123,7 @@ const MyList = () => {
                 <img 
                   src={popcornMascot}
                   alt="Popcorn Mascot" 
-                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-bounce"
+                  className="w-24 h-24 mx-auto mb-4 opacity-50"
                 />
                 <p className="font-medium">No favorites yet</p>
                 <p className="text-sm mt-2">Add movies and shows you love</p>
@@ -158,7 +158,7 @@ const MyList = () => {
                 <img 
                   src={popcornMascot}
                   alt="Popcorn Mascot" 
-                  className="w-24 h-24 mx-auto mb-4 opacity-50 animate-pulse"
+                  className="w-24 h-24 mx-auto mb-4 opacity-50"
                 />
                 <p className="font-medium">Your watchlist is empty</p>
                 <p className="text-sm mt-2">Add movies and shows to watch later</p>
