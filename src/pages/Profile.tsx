@@ -1,4 +1,4 @@
-import { User, Key, Save, Eye, EyeOff, Download, Globe } from "lucide-react";
+import { User, Key, Save, Eye, EyeOff, Download, Globe, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,13 +12,28 @@ import {
 import BottomNav from "@/components/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
+import { useWatchlist } from "@/contexts/WatchlistContext";
+import { useEpisodeTracking } from "@/contexts/EpisodeTrackingContext";
 import { countries } from "@/lib/countries";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Profile = () => {
   const { apiKeys, setApiKeys, userProfile, setUserProfile, hasApiKeys } = useApiKeys();
+  const { favorites, watchlist, continueWatching, setFavorites, setWatchlist, setContinueWatching } = useWatchlist();
+  const { clearAllProgress } = useEpisodeTracking();
   const { toast } = useToast();
   
   const [localApiKeys, setLocalApiKeys] = useState(apiKeys);
@@ -39,6 +54,54 @@ const Profile = () => {
     toast({
       title: "Profile Updated!",
       description: "Your profile has been saved locally on your device.",
+    });
+  };
+
+  const handleClearWatchlist = () => {
+    setWatchlist([]);
+    toast({
+      title: "Watchlist Cleared",
+      description: "Your watchlist has been cleared.",
+    });
+  };
+
+  const handleClearFavorites = () => {
+    setFavorites([]);
+    toast({
+      title: "Favorites Cleared",
+      description: "Your favorites have been cleared.",
+    });
+  };
+
+  const handleClearContinueWatching = () => {
+    setContinueWatching([]);
+    toast({
+      title: "Continue Watching Cleared",
+      description: "Your continue watching list has been cleared.",
+    });
+  };
+
+  const handleClearEpisodeProgress = () => {
+    clearAllProgress();
+    toast({
+      title: "Episode Progress Cleared",
+      description: "All episode tracking data has been cleared.",
+    });
+  };
+
+  const handleClearAllData = () => {
+    setWatchlist([]);
+    setFavorites([]);
+    setContinueWatching([]);
+    clearAllProgress();
+    setApiKeys({ tmdb: '', youtube: '' });
+    setUserProfile({ name: '', email: '', region: 'US' });
+    setLocalApiKeys({ tmdb: '', youtube: '' });
+    setLocalProfile({ name: '', email: '', region: 'US' });
+    toast({
+      title: "All Data Cleared",
+      description: "All app data has been reset. You'll need to enter your API keys again.",
+      variant: "destructive",
     });
   };
 
@@ -194,6 +257,129 @@ const Profile = () => {
               <Save size={18} />
               Save API Keys
             </Button>
+          </div>
+        </div>
+
+        {/* Data Management Section */}
+        <div className="mb-8 p-6 bg-card rounded-2xl shadow-card border border-border">
+          <div className="flex items-center gap-3 mb-4">
+            <Trash2 size={24} className="text-destructive" />
+            <h2 className="text-xl font-semibold text-card-foreground">Data Management</h2>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mb-4">
+            Free up storage space by removing saved data from your device.
+          </p>
+
+          <div className="space-y-3">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Trash2 size={16} />
+                  Clear Watchlist ({watchlist.length} items)
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Watchlist?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove all {watchlist.length} items from your watchlist. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearWatchlist}>Clear</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Trash2 size={16} />
+                  Clear Favorites ({favorites.length} items)
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Favorites?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove all {favorites.length} items from your favorites. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearFavorites}>Clear</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Trash2 size={16} />
+                  Clear Continue Watching ({continueWatching.length} items)
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Continue Watching?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove all {continueWatching.length} items from your continue watching list. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearContinueWatching}>Clear</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Trash2 size={16} />
+                  Clear Episode Progress
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Episode Progress?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove all TV show episode tracking data. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearEpisodeProgress}>Clear</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <div className="border-t border-border my-4"></div>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full gap-2">
+                  <AlertTriangle size={16} />
+                  Clear All Data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear All Data?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove ALL data including your watchlist, favorites, continue watching, episode progress, API keys, and profile information. You'll need to set up everything again. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearAllData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Clear Everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 

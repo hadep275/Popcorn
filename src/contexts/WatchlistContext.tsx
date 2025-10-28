@@ -30,6 +30,9 @@ interface WatchlistContextType {
   addToContinueWatching: (item: ContinueWatchingItem) => void;
   removeFromContinueWatching: (id: number) => void;
   updateProgress: (id: number, progress: number, season?: number, episode?: number) => void;
+  setFavorites: (items: WatchlistItem[]) => void;
+  setWatchlist: (items: WatchlistItem[]) => void;
+  setContinueWatching: (items: ContinueWatchingItem[]) => void;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
@@ -104,7 +107,10 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         isInWatchlist,
         addToContinueWatching,
         removeFromContinueWatching,
-        updateProgress
+        updateProgress,
+        setFavorites,
+        setWatchlist,
+        setContinueWatching,
       }}
     >
       {children}

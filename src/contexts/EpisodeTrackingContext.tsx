@@ -15,6 +15,7 @@ interface EpisodeTrackingContextType {
   markEpisodeWatched: (showId: number, season: number, episode: number) => void;
   isEpisodeWatched: (showId: number, season: number, episode: number) => boolean;
   getSeasonProgress: (showId: number, season: number, totalEpisodes: number) => { watched: number; total: number; percentage: number };
+  clearAllProgress: () => void;
 }
 
 const EpisodeTrackingContext = createContext<EpisodeTrackingContextType | undefined>(undefined);
@@ -84,6 +85,10 @@ export function EpisodeTrackingProvider({ children }: { children: ReactNode }) {
     };
   };
 
+  const clearAllProgress = () => {
+    setTracking({});
+  };
+
   return (
     <EpisodeTrackingContext.Provider
       value={{
@@ -92,6 +97,7 @@ export function EpisodeTrackingProvider({ children }: { children: ReactNode }) {
         markEpisodeWatched,
         isEpisodeWatched,
         getSeasonProgress,
+        clearAllProgress,
       }}
     >
       {children}
