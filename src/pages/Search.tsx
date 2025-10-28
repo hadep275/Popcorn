@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Search as SearchIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search as SearchIcon, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
 import { tmdbService, Movie } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 import ContentCard from "@/components/ContentCard";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Search = () => {
   const navigate = useNavigate();
@@ -14,18 +16,43 @@ const Search = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
+  const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
+  const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedRating, setSelectedRating] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
 
-  const handleSearch = async (searchQuery: string) => {
-    setQuery(searchQuery);
+  // Load genres when media type changes
+  useEffect(() => {
+    if (!hasApiKeys) return;
     
-    if (!searchQuery.trim() || !hasApiKeys) {
-      setResults([]);
-      return;
-    }
+    const loadGenres = async () => {
+      try {
+        const genreData = await tmdbService.getGenres(apiKeys.tmdb, mediaType);
+        setGenres(genreData);
+      } catch (error) {
+        console.error("Error loading genres:", error);
+      }
+    };
+    
+    loadGenres();
+  }, [mediaType, apiKeys.tmdb, hasApiKeys]);
+
+  const handleSearch = async () => {
+    if (!hasApiKeys) return;
 
     try {
       setLoading(true);
-      const data = await tmdbService.search(apiKeys.tmdb, searchQuery);
+      const filters = {
+        query: query.trim(),
+        mediaType,
+        genre: selectedGenre ? parseInt(selectedGenre) : undefined,
+        year: selectedYear ? parseInt(selectedYear) : undefined,
+        minRating: selectedRating ? parseFloat(selectedRating) : undefined,
+      };
+      
+      const data = await tmdbService.advancedSearch(apiKeys.tmdb, filters);
       setResults(data);
     } catch (error) {
       console.error("Error searching:", error);
@@ -34,19 +61,24 @@ const Search = () => {
     }
   };
 
-  if (!hasApiKeys) {
-    return (
-      <div className="min-h-screen bg-background pb-20">
-        <div className="p-6 flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <p className="text-muted-foreground mb-4">Please add your API keys to search</p>
-            <Button onClick={() => navigate("/profile")}>Go to Profile</Button>
-          </div>
-        </div>
-        <BottomNav />
-      </div>
-    );
-  }
+  // Trigger search when filters change
+  useEffect(() => {
+    if (hasApiKeys && (query || selectedGenre || selectedYear || selectedRating)) {
+      handleSearch();
+    } else {
+      setResults([]);
+    }
+  }, [query, mediaType, selectedGenre, selectedYear, selectedRating]);
+
+  const clearFilters = () => {
+    setSelectedGenre("");
+    setSelectedYear("");
+    setSelectedRating("");
+  };
+
+  // Generate year options (current year to 1900)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1899 }, (_, i) => currentYear - i);
 
   const formatItems = (items: Movie[]) =>
     items.map((item) => ({
@@ -54,6 +86,7 @@ const Search = () => {
       title: item.title || item.name || "",
       poster_path: item.poster_path || "",
       vote_average: item.vote_average,
+      media_type: mediaType,
     }));
 
   return (
@@ -61,20 +94,105 @@ const Search = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Search</h1>
         
+        {/* Media Type Tabs */}
+        <Tabs value={mediaType} onValueChange={(v) => setMediaType(v as 'movie' | 'tv')} className="mb-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="movie">Movies</TabsTrigger>
+            <TabsTrigger value="tv">TV Shows</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
         {/* Search Input */}
-        <div className="relative mb-8">
+        <div className="relative mb-4">
           <SearchIcon
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
             size={20}
           />
           <Input
             type="text"
-            placeholder="Search movies & TV shows..."
+            placeholder={`Search ${mediaType === 'movie' ? 'movies' : 'TV shows'}...`}
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="pl-10 bg-card border-border"
+            maxLength={100}
           />
         </div>
+
+        {/* Filter Toggle */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="mb-4 gap-2"
+        >
+          <Filter size={16} />
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </Button>
+
+        {/* Filters */}
+        {showFilters && (
+          <div className="mb-6 p-4 bg-card rounded-lg space-y-3">
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Genre</label>
+                <Select value={selectedGenre} onValueChange={setSelectedGenre}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="All Genres" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-50 max-h-[300px]">
+                    <SelectItem value="all">All Genres</SelectItem>
+                    {genres.map((genre) => (
+                      <SelectItem key={genre.id} value={genre.id.toString()}>
+                        {genre.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Year</label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="All Years" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-50 max-h-[300px]">
+                    <SelectItem value="all">All Years</SelectItem>
+                    {years.slice(0, 50).map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
+                <Select value={selectedRating} onValueChange={setSelectedRating}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Any Rating" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border z-50">
+                    <SelectItem value="all">Any Rating</SelectItem>
+                    <SelectItem value="7">7+ ⭐</SelectItem>
+                    <SelectItem value="8">8+ ⭐⭐</SelectItem>
+                    <SelectItem value="9">9+ ⭐⭐⭐</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="w-full"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
 
         {/* Results */}
         {loading ? (
@@ -84,7 +202,7 @@ const Search = () => {
         ) : results.length > 0 ? (
           <div>
             <h2 className="text-lg font-semibold mb-4">
-              Results for "{query}"
+              {query ? `Results for "${query}"` : 'Results'}
             </h2>
             <div className="grid grid-cols-3 gap-4">
               {formatItems(results).map((item) => (
@@ -92,14 +210,14 @@ const Search = () => {
               ))}
             </div>
           </div>
-        ) : query ? (
+        ) : query || selectedGenre || selectedYear || selectedRating ? (
           <div className="text-center text-muted-foreground mt-20">
-            No results found for "{query}"
+            No results found
           </div>
         ) : (
           <div className="text-center text-muted-foreground mt-20">
             <SearchIcon size={48} className="mx-auto mb-4 opacity-50" />
-            <p>Search for your favorite movies and TV shows</p>
+            <p>Search for your favorite {mediaType === 'movie' ? 'movies' : 'TV shows'}</p>
           </div>
         )}
       </div>

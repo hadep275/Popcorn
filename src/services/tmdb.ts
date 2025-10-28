@@ -166,6 +166,70 @@ export const tmdbService = {
     return data.results as Movie[];
   },
 
+  // Get genres
+  getGenres: async (apiKey: string, mediaType: 'movie' | 'tv' = 'movie') => {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/genre/${mediaType}/list?api_key=${apiKey}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch genres');
+    const data = await response.json();
+    return data.genres as { id: number; name: string }[];
+  },
+
+  // Advanced search with filters
+  advancedSearch: async (
+    apiKey: string,
+    filters: {
+      query?: string;
+      mediaType?: 'movie' | 'tv';
+      genre?: number;
+      year?: number;
+      minRating?: number;
+    }
+  ) => {
+    const { query, mediaType = 'movie', genre, year, minRating } = filters;
+    
+    // If there's a search query, use search endpoint
+    if (query && query.trim()) {
+      const response = await fetch(
+        `${TMDB_BASE_URL}/search/${mediaType}?api_key=${apiKey}&query=${encodeURIComponent(query)}`
+      );
+      if (!response.ok) throw new Error('Failed to search');
+      const data = await response.json();
+      let results = data.results as Movie[];
+      
+      // Apply additional filters client-side
+      if (genre) results = results.filter(m => m.genre_ids?.includes(genre));
+      if (year) {
+        results = results.filter(m => {
+          const releaseYear = m.release_date?.split('-')[0] || m.first_air_date?.split('-')[0];
+          return releaseYear === year.toString();
+        });
+      }
+      if (minRating) results = results.filter(m => m.vote_average >= minRating);
+      
+      return results;
+    }
+    
+    // Otherwise use discover endpoint with filters
+    let url = `${TMDB_BASE_URL}/discover/${mediaType}?api_key=${apiKey}`;
+    if (genre) url += `&with_genres=${genre}`;
+    if (year) {
+      if (mediaType === 'movie') {
+        url += `&primary_release_year=${year}`;
+      } else {
+        url += `&first_air_date_year=${year}`;
+      }
+    }
+    if (minRating) url += `&vote_average.gte=${minRating}`;
+    url += '&sort_by=popularity.desc';
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to discover');
+    const data = await response.json();
+    return data.results as Movie[];
+  },
+
   // Discover by genre
   discoverByGenre: async (
     apiKey: string,
