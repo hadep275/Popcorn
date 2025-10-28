@@ -10,6 +10,7 @@ import { useWatchlist } from "@/contexts/WatchlistContext";
 import { useEpisodeTracking } from "@/contexts/EpisodeTrackingContext";
 import { tmdbService, Movie, Cast, Video, Episode } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
+import PopcornSpill from "@/components/PopcornSpill";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ const Details = () => {
   const [loading, setLoading] = useState(true);
   const [videoSource, setVideoSource] = useState<'vidsrc' | 'vidsrc2' | 'embedsu'>('vidsrc');
   const [showChromeBanner, setShowChromeBanner] = useState(false);
+  const [showSpill, setShowSpill] = useState(false);
 
   const isTvShow = mediaType === 'tv';
   const showId = id ? parseInt(id) : 0;
@@ -159,6 +161,8 @@ const Details = () => {
 
   const handlePlayClick = () => {
     setShowPlayer(true);
+    setShowSpill(true);
+    setTimeout(() => setShowSpill(false), 1800);
     
     // Show Chrome banner after a brief delay to check if video loads
     setTimeout(() => {
@@ -190,6 +194,8 @@ const Details = () => {
   const handleEpisodeClick = (episodeNumber: number) => {
     setSelectedEpisode(episodeNumber);
     setShowPlayer(true);
+    setShowSpill(true);
+    setTimeout(() => setShowSpill(false), 1200);
     if (id) {
       updateProgress(parseInt(id), selectedSeason, episodeNumber);
     }
@@ -455,12 +461,18 @@ const Details = () => {
               </div>
               
               <div className="aspect-video bg-card rounded-lg overflow-hidden video-container relative">
+                {/* Spilled Popcorn animation */}
+                {showSpill && (
+                  <div className="absolute inset-0 z-10 pointer-events-none">
+                    <PopcornSpill active={showSpill} />
+                  </div>
+                )}
                 <iframe
                   key={`${videoSource}-${id}-${selectedSeason}-${selectedEpisode}`}
                   src={getPlayerUrl()}
-                  className="w-full h-full"
+                  className="w-full h-full relative z-0"
                   allowFullScreen
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups-to-escape-sandbox"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-top-navigation-by-user-activation"
                   referrerPolicy="no-referrer"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                   style={{ border: 'none' }}
