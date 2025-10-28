@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Heart, Bookmark, Star } from "lucide-react";
+import { ArrowLeft, Play, Heart, Bookmark, Star, Check, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useApiKeys } from "@/contexts/ApiKeysContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
+import { useEpisodeTracking } from "@/contexts/EpisodeTrackingContext";
 import { tmdbService, Movie, Cast, Video, Episode } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 const Details = () => {
   const { id, mediaType } = useParams<{ id: string; mediaType: 'movie' | 'tv' }>();
@@ -23,6 +26,13 @@ const Details = () => {
     removeFromWatchlist,
     addToContinueWatching
   } = useWatchlist();
+  const {
+    getShowProgress,
+    updateProgress,
+    markEpisodeWatched,
+    isEpisodeWatched,
+    getSeasonProgress,
+  } = useEpisodeTracking();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
@@ -33,6 +43,7 @@ const Details = () => {
   const [loading, setLoading] = useState(true);
 
   const isTvShow = mediaType === 'tv';
+  const showId = id ? parseInt(id) : 0;
 
   useEffect(() => {
     if (!hasApiKeys || !id || !mediaType) return;
@@ -48,6 +59,15 @@ const Details = () => {
         setMovie(movieData);
         setCast(castData.slice(0, 6));
         setVideos(videosData.filter(v => v.site === 'YouTube' && v.type === 'Trailer'));
+        
+        // Load saved progress for TV shows
+        if (mediaType === 'tv' && id) {
+          const progress = getShowProgress(parseInt(id));
+          if (progress) {
+            setSelectedSeason(progress.currentSeason);
+            setSelectedEpisode(progress.currentEpisode);
+          }
+        }
       } catch (error) {
         console.error("Error fetching movie details:", error);
       } finally {
@@ -115,6 +135,10 @@ const Details = () => {
   const title = movie.title || movie.name || "Unknown Title";
   const releaseYear = movie.release_date?.split("-")[0] || movie.first_air_date?.split("-")[0] || "N/A";
   const trailer = videos[0];
+  const progress = isTvShow && id ? getShowProgress(parseInt(id)) : null;
+  const seasonProgress = isTvShow && id && episodes.length > 0 
+    ? getSeasonProgress(parseInt(id), selectedSeason, episodes.length)
+    : null;
   
   const getPlayerUrl = () => {
     if (isTvShow) {
@@ -125,6 +149,11 @@ const Details = () => {
 
   const handlePlayClick = () => {
     setShowPlayer(true);
+    
+    // Update episode tracking for TV shows
+    if (isTvShow && id) {
+      updateProgress(parseInt(id), selectedSeason, selectedEpisode);
+    }
     
     // Add to continue watching
     if (movie && id && mediaType) {
@@ -141,6 +170,53 @@ const Details = () => {
         lastWatchedAt: Date.now(),
       });
     }
+  };
+
+  const handleEpisodeClick = (episodeNumber: number) => {
+    setSelectedEpisode(episodeNumber);
+    setShowPlayer(true);
+    if (id) {
+      updateProgress(parseInt(id), selectedSeason, episodeNumber);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleMarkWatched = (episodeNumber: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (id) {
+      markEpisodeWatched(parseInt(id), selectedSeason, episodeNumber);
+      toast({
+        title: "Episode marked as watched",
+        description: `S${selectedSeason}E${episodeNumber}`,
+      });
+    }
+  };
+
+  const handleNextEpisode = () => {
+    const currentEpisodeIndex = episodes.findIndex(ep => ep.episode_number === selectedEpisode);
+    if (currentEpisodeIndex < episodes.length - 1) {
+      const nextEp = episodes[currentEpisodeIndex + 1];
+      handleEpisodeClick(nextEp.episode_number);
+      toast({
+        title: "Playing next episode",
+        description: `S${selectedSeason}E${nextEp.episode_number}: ${nextEp.name}`,
+      });
+    } else {
+      toast({
+        title: "Season complete!",
+        description: "You've reached the last episode of this season.",
+      });
+    }
+  };
+
+  const handleStartFromBeginning = () => {
+    setSelectedSeason(1);
+    setSelectedEpisode(1);
+    setShowPlayer(true);
+    if (id) {
+      updateProgress(parseInt(id), 1, 1);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleToggleFavorite = () => {
@@ -263,10 +339,29 @@ const Details = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 mb-6">
-            <Button size="lg" className="flex-1 gap-2 bg-gradient-hero" onClick={handlePlayClick}>
-              <Play size={20} fill="white" />
-              Play
+            <Button 
+              size="lg" 
+              className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90" 
+              onClick={handlePlayClick}
+            >
+              <Play size={20} fill="currentColor" />
+              <span className="font-semibold">
+                {isTvShow && progress 
+                  ? `Continue S${progress.currentSeason}E${progress.currentEpisode}`
+                  : 'Play'}
+              </span>
             </Button>
+            {isTvShow && progress && (
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="gap-2"
+                onClick={handleStartFromBeginning}
+              >
+                <Play size={20} />
+                <span className="text-xs">S1E1</span>
+              </Button>
+            )}
             <Button 
               size="lg" 
               variant="secondary" 
@@ -304,19 +399,50 @@ const Details = () => {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 />
               </div>
+              {/* Next Episode Button for TV Shows */}
+              {isTvShow && episodes.length > 0 && (
+                <div className="mt-3 flex gap-2">
+                  <Button 
+                    onClick={handleNextEpisode}
+                    className="flex-1 gap-2"
+                    variant="secondary"
+                  >
+                    <SkipForward size={18} />
+                    Next Episode
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
           {/* Season & Episode Selector for TV Shows */}
           {isTvShow && movie.seasons && (
             <div className="mb-6">
-              <h2 className="text-lg font-semibold mb-3">Episodes</h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Episodes</h2>
+                {seasonProgress && (
+                  <div className="text-sm text-muted-foreground">
+                    {seasonProgress.watched}/{seasonProgress.total} watched
+                  </div>
+                )}
+              </div>
+              
+              {/* Season Progress Bar */}
+              {seasonProgress && seasonProgress.total > 0 && (
+                <div className="mb-4">
+                  <Progress value={seasonProgress.percentage} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {seasonProgress.percentage}% complete
+                  </p>
+                </div>
+              )}
+              
               <div className="flex gap-3 mb-4">
                 <Select value={selectedSeason.toString()} onValueChange={(v) => setSelectedSeason(Number(v))}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select Season" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background border-border z-50">
+                  <SelectContent className="bg-popover border-border z-50">
                     {movie.seasons
                       .filter(s => s.season_number > 0)
                       .map((season) => (
@@ -330,47 +456,76 @@ const Details = () => {
               
               {/* Episode List */}
               <div className="space-y-3">
-                {episodes.map((episode) => (
-                  <div
-                    key={episode.id}
-                    className="flex gap-3 bg-card rounded-lg p-3 cursor-pointer hover:bg-card/80 transition-colors"
-                    onClick={() => {
-                      setSelectedEpisode(episode.episode_number);
-                      setShowPlayer(true);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    {episode.still_path && (
-                      <img
-                        src={tmdbService.getImageUrl(episode.still_path, 'w342')}
-                        alt={episode.name}
-                        className="w-32 h-20 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-1">
-                        <h3 className="font-medium text-sm">
-                          {episode.episode_number}. {episode.name}
-                        </h3>
-                        {episode.vote_average > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Star size={12} className="fill-primary text-primary" />
-                            <span className="text-xs text-muted-foreground">
-                              {episode.vote_average.toFixed(1)}
-                            </span>
+                {episodes.map((episode) => {
+                  const watched = isEpisodeWatched(showId, selectedSeason, episode.episode_number);
+                  const isCurrent = selectedEpisode === episode.episode_number;
+                  
+                  return (
+                    <div
+                      key={episode.id}
+                      className={cn(
+                        "flex gap-3 rounded-lg p-3 cursor-pointer transition-all",
+                        watched 
+                          ? "bg-primary/10 border-2 border-primary/30" 
+                          : "bg-card hover:bg-card/80",
+                        isCurrent && "ring-2 ring-primary"
+                      )}
+                      onClick={() => handleEpisodeClick(episode.episode_number)}
+                    >
+                      {episode.still_path && (
+                        <div className="relative">
+                          <img
+                            src={tmdbService.getImageUrl(episode.still_path, 'w342')}
+                            alt={episode.name}
+                            className="w-32 h-20 object-cover rounded"
+                          />
+                          {watched && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center rounded">
+                              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                                <Check size={18} className="text-primary-foreground" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-1">
+                          <h3 className={cn(
+                            "font-medium text-sm",
+                            watched && "text-primary"
+                          )}>
+                            {episode.episode_number}. {episode.name}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            {episode.vote_average > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Star size={12} className="fill-primary text-primary" />
+                                <span className="text-xs text-muted-foreground">
+                                  {episode.vote_average.toFixed(1)}
+                                </span>
+                              </div>
+                            )}
+                            <Button
+                              size="sm"
+                              variant={watched ? "default" : "outline"}
+                              className="h-7 px-2"
+                              onClick={(e) => handleMarkWatched(episode.episode_number, e)}
+                            >
+                              <Check size={14} />
+                            </Button>
                           </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {episode.overview || 'No description available'}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        {episode.air_date && <span>{episode.air_date}</span>}
-                        {episode.runtime && <span>• {episode.runtime}min</span>}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {episode.overview || 'No description available'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                          {episode.air_date && <span>{episode.air_date}</span>}
+                          {episode.runtime && <span>• {episode.runtime}min</span>}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
