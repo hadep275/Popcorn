@@ -83,7 +83,7 @@ const Home = () => {
             className="mx-auto mb-4 h-24 w-24 md:h-28 md:w-28 drop-shadow-lg motion-safe:animate-bounce"
             loading="eager"
           />
-          <h1 className="text-3xl font-bold mb-4">Welcome! 🎬✨</h1>
+          <h1 className="text-3xl font-bold mb-4">Popcorn</h1>
           <p className="text-muted-foreground mb-6 space-y-2">
             <span className="block">To start exploring movies and shows, please add your TMDB API key in your profile to load content.</span>
             <span className="block text-sm">YouTube API key is optional for better trailer support.</span>
