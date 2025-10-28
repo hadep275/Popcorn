@@ -8,7 +8,7 @@ import { tmdbService, Movie, Cast } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 
 const Details = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, mediaType } = useParams<{ id: string; mediaType: 'movie' | 'tv' }>();
   const navigate = useNavigate();
   const { apiKeys, hasApiKeys } = useApiKeys();
   const [movie, setMovie] = useState<Movie | null>(null);
@@ -16,14 +16,14 @@ const Details = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!hasApiKeys || !id) return;
+    if (!hasApiKeys || !id || !mediaType) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
         const [movieData, castData] = await Promise.all([
-          tmdbService.getDetails(apiKeys.tmdb, id),
-          tmdbService.getCredits(apiKeys.tmdb, id),
+          tmdbService.getDetails(apiKeys.tmdb, id, mediaType),
+          tmdbService.getCredits(apiKeys.tmdb, id, mediaType),
         ]);
         setMovie(movieData);
         setCast(castData.slice(0, 6));
@@ -35,7 +35,7 @@ const Details = () => {
     };
 
     fetchData();
-  }, [id, apiKeys.tmdb, hasApiKeys]);
+  }, [id, mediaType, apiKeys.tmdb, hasApiKeys]);
 
   if (!hasApiKeys) {
     return (

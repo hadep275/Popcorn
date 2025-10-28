@@ -98,12 +98,13 @@ const Home = () => {
     );
   }
 
-  const formatItems = (items: Movie[]) =>
+  const formatItems = (items: Movie[], mediaType: 'movie' | 'tv' = 'movie') =>
     items.map((item) => ({
       id: item.id,
       title: item.title || item.name || "",
       poster_path: item.poster_path || "",
       vote_average: item.vote_average,
+      media_type: mediaType,
     }));
 
   return (
@@ -117,8 +118,8 @@ const Home = () => {
         <ContentRow title="Action Movies" items={formatItems(action)} />
         <ContentRow title="Comedy Movies" items={formatItems(comedy)} />
         <ContentRow title="Top Rated Movies" items={formatItems(topRated)} />
-        <ContentRow title="Popular TV Shows" items={formatItems(popularTv)} />
-        <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv)} />
+        <ContentRow title="Popular TV Shows" items={formatItems(popularTv, 'tv')} />
+        <ContentRow title="Top Rated TV Shows" items={formatItems(topRatedTv, 'tv')} />
       </div>
       <BottomNav />
     </div>

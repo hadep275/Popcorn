@@ -8,6 +8,7 @@ interface ContentRowProps {
     title: string;
     poster_path: string;
     vote_average: number;
+    media_type?: 'movie' | 'tv';
   }>;
 }
 

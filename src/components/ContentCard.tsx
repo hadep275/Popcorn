@@ -8,13 +8,16 @@ interface ContentCardProps {
     title: string;
     poster_path: string;
     vote_average: number;
+    media_type?: 'movie' | 'tv';
   };
 }
 
 const ContentCard = ({ item }: ContentCardProps) => {
+  const mediaType = item.media_type || 'movie';
+  
   return (
     <Link
-      to={`/details/${item.id}`}
+      to={`/details/${mediaType}/${item.id}`}
       className="flex-shrink-0 w-32 animate-scale-in"
     >
       <div className="relative group cursor-pointer">
