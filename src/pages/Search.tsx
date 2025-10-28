@@ -1,38 +1,60 @@
 import { useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useApiKeys } from "@/contexts/ApiKeysContext";
+import { tmdbService, Movie } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 import ContentCard from "@/components/ContentCard";
-
-const mockResults = [
-  {
-    id: 1,
-    title: "The Shawshank Redemption",
-    poster_path: "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
-    vote_average: 8.7,
-  },
-  {
-    id: 2,
-    title: "The Dark Knight",
-    poster_path: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-    vote_average: 9.0,
-  },
-  {
-    id: 3,
-    title: "Inception",
-    poster_path: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
-    vote_average: 8.8,
-  },
-];
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
+  const navigate = useNavigate();
+  const { apiKeys, hasApiKeys } = useApiKeys();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState(mockResults);
+  const [results, setResults] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (value: string) => {
-    setQuery(value);
-    // Implement actual search with TMDB API
+  const handleSearch = async (searchQuery: string) => {
+    setQuery(searchQuery);
+    
+    if (!searchQuery.trim() || !hasApiKeys) {
+      setResults([]);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await tmdbService.search(apiKeys.tmdb, searchQuery);
+      setResults(data);
+    } catch (error) {
+      console.error("Error searching:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!hasApiKeys) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <div className="p-6 flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <p className="text-muted-foreground mb-4">Please add your API keys to search</p>
+            <Button onClick={() => navigate("/profile")}>Go to Profile</Button>
+          </div>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  const formatItems = (items: Movie[]) =>
+    items.map((item) => ({
+      id: item.id,
+      title: item.title || item.name || "",
+      poster_path: item.poster_path || "",
+      vote_average: item.vote_average,
+    }));
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -55,16 +77,24 @@ const Search = () => {
         </div>
 
         {/* Results */}
-        {query ? (
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : results.length > 0 ? (
           <div>
             <h2 className="text-lg font-semibold mb-4">
               Results for "{query}"
             </h2>
             <div className="grid grid-cols-3 gap-4">
-              {results.map((item) => (
+              {formatItems(results).map((item) => (
                 <ContentCard key={item.id} item={item} />
               ))}
             </div>
+          </div>
+        ) : query ? (
+          <div className="text-center text-muted-foreground mt-20">
+            No results found for "{query}"
           </div>
         ) : (
           <div className="text-center text-muted-foreground mt-20">

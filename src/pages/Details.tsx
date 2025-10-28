@@ -1,30 +1,77 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Share2, Star } from "lucide-react";
+import { ArrowLeft, Play, Plus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useApiKeys } from "@/contexts/ApiKeysContext";
+import { tmdbService, Movie, Cast } from "@/services/tmdb";
 import BottomNav from "@/components/BottomNav";
 
 const Details = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { apiKeys, hasApiKeys } = useApiKeys();
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [cast, setCast] = useState<Cast[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - Replace with actual TMDB API call
-  const movie = {
-    title: "The Shawshank Redemption",
-    backdrop_path: "/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg",
-    poster_path: "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
-    vote_average: 8.7,
-    release_date: "1994-09-23",
-    runtime: 142,
-    genres: ["Drama", "Crime"],
-    overview:
-      "Framed in the 1940s for the double murder of his wife and her lover, upstanding banker Andy Dufresne begins a new life at the Shawshank prison, where he puts his accounting skills to work for an amoral warden. During his long stretch in prison, Dufresne comes to be admired by the other inmates.",
-    cast: [
-      { name: "Tim Robbins", character: "Andy Dufresne" },
-      { name: "Morgan Freeman", character: "Ellis Boyd 'Red' Redding" },
-      { name: "Bob Gunton", character: "Warden Norton" },
-    ],
-  };
+  useEffect(() => {
+    if (!hasApiKeys || !id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [movieData, castData] = await Promise.all([
+          tmdbService.getDetails(apiKeys.tmdb, id),
+          tmdbService.getCredits(apiKeys.tmdb, id),
+        ]);
+        setMovie(movieData);
+        setCast(castData.slice(0, 6));
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, apiKeys.tmdb, hasApiKeys]);
+
+  if (!hasApiKeys) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pb-20">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Please add your API keys first</p>
+          <Button onClick={() => navigate("/profile")}>Go to Profile</Button>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center pb-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pb-20">
+        <div className="text-center">
+          <p className="text-muted-foreground">Movie not found</p>
+          <Button onClick={() => navigate("/")} className="mt-4">Go Home</Button>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  const title = movie.title || movie.name || "Unknown Title";
+  const releaseYear = movie.release_date?.split("-")[0] || movie.first_air_date?.split("-")[0] || "N/A";
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -42,8 +89,8 @@ const Details = () => {
         {/* Hero Image */}
         <div className="relative h-[50vh]">
           <img
-            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-            alt={movie.title}
+            src={tmdbService.getImageUrl(movie.backdrop_path, 'original')}
+            alt={title}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-overlay" />
@@ -51,27 +98,29 @@ const Details = () => {
 
         {/* Content */}
         <div className="px-6 -mt-16 relative z-10">
-          <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
+          <h1 className="text-3xl font-bold mb-2">{title}</h1>
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
               <Star size={16} className="fill-primary text-primary" />
               <span>{movie.vote_average.toFixed(1)}</span>
             </div>
-            <span>{new Date(movie.release_date).getFullYear()}</span>
-            <span>{movie.runtime} min</span>
+            <span>{releaseYear}</span>
+            {movie.runtime && <span>{movie.runtime} min</span>}
           </div>
 
           {/* Genres */}
-          <div className="flex gap-2 mb-6">
-            {movie.genres.map((genre) => (
-              <span
-                key={genre}
-                className="px-3 py-1 bg-card rounded-full text-xs"
-              >
-                {genre}
-              </span>
-            ))}
-          </div>
+          {movie.genres && movie.genres.length > 0 && (
+            <div className="flex gap-2 mb-6">
+              {movie.genres.map((genre) => (
+                <span
+                  key={genre.id}
+                  className="px-3 py-1 bg-card rounded-full text-xs"
+                >
+                  {genre.name}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 mb-6">
@@ -81,9 +130,6 @@ const Details = () => {
             </Button>
             <Button size="lg" variant="secondary" className="gap-2">
               <Plus size={20} />
-            </Button>
-            <Button size="lg" variant="secondary" className="gap-2">
-              <Share2 size={20} />
             </Button>
           </div>
 
@@ -96,20 +142,28 @@ const Details = () => {
           </div>
 
           {/* Cast */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3">Cast</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {movie.cast.map((actor) => (
-                <div key={actor.name} className="text-center">
-                  <div className="w-full aspect-square bg-card rounded-lg mb-2" />
-                  <p className="text-sm font-medium">{actor.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {actor.character}
-                  </p>
-                </div>
-              ))}
+          {cast.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-3">Cast</h2>
+              <div className="grid grid-cols-3 gap-4">
+                {cast.map((actor) => (
+                  <div key={actor.id} className="text-center">
+                    <div className="w-full aspect-square rounded-lg overflow-hidden mb-2 bg-card">
+                      <img
+                        src={tmdbService.getImageUrl(actor.profile_path, 'w342')}
+                        alt={actor.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-sm font-medium line-clamp-1">{actor.name}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">
+                      {actor.character}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Trailer Section */}
           <div className="mb-6">

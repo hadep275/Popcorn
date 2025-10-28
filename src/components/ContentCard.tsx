@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { tmdbService } from "@/services/tmdb";
 
 interface ContentCardProps {
   item: {
@@ -19,7 +20,7 @@ const ContentCard = ({ item }: ContentCardProps) => {
       <div className="relative group cursor-pointer">
         <div className="relative overflow-hidden rounded-lg shadow-card transition-transform duration-300 group-hover:scale-105">
           <img
-            src={`https://image.tmdb.org/t/p/w342${item.poster_path}`}
+            src={tmdbService.getImageUrl(item.poster_path)}
             alt={item.title}
             className="w-full h-48 object-cover"
           />
